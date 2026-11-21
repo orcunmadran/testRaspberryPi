@@ -60,6 +60,8 @@
   .cal td.we{color:#fda4af}
   .cal td.today span{display:inline-block;width:31px;line-height:31px;border-radius:50%;background:var(--accent);color:#04202e;font-weight:700}
 
+  h2 small{font-size:17px;font-weight:400;letter-spacing:0;text-transform:none;margin-left:8px}
+
   /* yemek */
   #lunch ul{list-style:none}
   #lunch li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:30px}
@@ -101,7 +103,7 @@
     <section id="markets"></section>
 
     <section class="panel" id="events">
-      <h2>Yaklaşan Etkinlikler</h2>
+      <h2>Yaklaşan Etkinlikler <small>(etkinlik bilgileri etkinlikler.hacettepe.edu.tr adresinden alınmaktadır)</small></h2>
       <div class="withqr">
         <div class="list" id="eventsBody"></div>
         <div class="qr"><img src="/static/qr_etkinlik.svg" alt="Etkinlikler karekodu"><span>Etkinlikler için okutun</span></div>
@@ -109,7 +111,7 @@
     </section>
 
     <section class="panel" id="news">
-      <h2>Hacettepe Haberler</h2>
+      <h2>Hacettepe'den Haberler <small>(haber bilgileri gazete.hacettepe.edu.tr adresinden alınmaktadır)</small></h2>
       <div class="withqr">
         <div class="list" id="newsBody"></div>
         <div class="qr"><img src="/static/qr_haber.svg" alt="Haberler karekodu"><span>Haberler için okutun</span></div>
