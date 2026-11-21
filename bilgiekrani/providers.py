@@ -13,7 +13,7 @@ from . import config
 HEADERS = {"User-Agent": config.USER_AGENT}
 
 
-def _get(url: str, retries: int = 3, **kwargs) -> requests.Response:
+def _get(url: str, retries: int = 2, **kwargs) -> requests.Response:
     """GET isteği; geçici ağ hatalarında kısa bekleyerek yeniden dener."""
     last: Exception | None = None
     for attempt in range(retries):
@@ -23,7 +23,8 @@ def _get(url: str, retries: int = 3, **kwargs) -> requests.Response:
             return r
         except (requests.ConnectionError, requests.Timeout) as exc:
             last = exc
-            time.sleep(1.5 * (attempt + 1))
+            if attempt < retries - 1:
+                time.sleep(1.5)
     raise last  # type: ignore[misc]
 
 

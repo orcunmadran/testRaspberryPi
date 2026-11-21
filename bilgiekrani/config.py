@@ -9,7 +9,7 @@ CITY = os.environ.get("BE_CITY", "Ankara")
 # Yemek listesi konumu: 1 = Beytepe, 2 = Sıhhiye
 LUNCH_LOCATION_ID = int(os.environ.get("BE_LUNCH_LOCATION", "1"))
 
-REQUEST_TIMEOUT = 15
+REQUEST_TIMEOUT = 10
 USER_AGENT = "Mozilla/5.0 (compatible; BilgiEkrani/1.0)"
 
 # Önbellek süreleri (saniye)

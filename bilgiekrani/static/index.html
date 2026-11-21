@@ -81,6 +81,10 @@
   .item:last-child{border-bottom:0}
   .item .d{color:var(--accent);font-weight:600;margin-right:12px;display:inline-block;min-width:78px}
   .stale{position:absolute;right:68px;top:14px;font-size:18px;color:#fbbf24}
+  #offline{display:none;position:absolute;right:64px;top:48px;width:600px;height:200px;z-index:10;
+    background:#3b1708;border:2px solid #fb923c;border-radius:20px;color:#ffedd5;
+    align-items:center;justify-content:center;text-align:center;flex-direction:column;gap:8px}
+  #offline b{font-size:36px} #offline span{font-size:22px;color:#fed7aa}
 </style>
 </head>
 <body>
@@ -126,6 +130,7 @@
   </div>
 </div>
 <div class="stale" id="staleNote"></div>
+<div id="offline"><b>⚠ İnternet bağlantısı yok</b><span>Bağlantı kurulunca otomatik yenilenecek</span></div>
 
 <script>
 const AYLAR=["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
@@ -203,6 +208,7 @@ function money(v){
   if(v>=1e6) return fmt(v/1e6,2)+" Mn";
   return fmt(v,v>=10000?0:2);
 }
+const LABELS={USDTRY:"USD/TL",EURTRY:"EUR/TL",BTCTRY:"Bitcoin/TL",ETHTRY:"Ethereum/TL",BIST100:"BIST 100",NASDAQ:"Nasdaq"};
 function tile(t){
   return `<div class="tile"><div class="label">${esc(t.label)}</div><div class="value">${money(t.value)}</div>${chg(t.change)}</div>`;
 }
@@ -217,10 +223,11 @@ function renderMarkets(s){
   const order=["USDTRY","EURTRY","BTCTRY","ETHTRY","BIST100","NASDAQ"];
   const all=[...(s.fx.data||[]),...(s.crypto.data||[]),...(s.indices.data||[])];
   const by=Object.fromEntries(all.map(t=>[t.key,t]));
-  $("markets").innerHTML=order.map(k=>by[k]?tile(by[k]):`<div class="tile"><div class="label">${k}</div><div class="value">—</div><div class="chg">&nbsp;</div></div>`).join("");
+  $("markets").innerHTML=order.map(k=>by[k]?tile(by[k]):`<div class="tile"><div class="label">${LABELS[k]}</div><div class="value">—</div><div class="chg">&nbsp;</div></div>`).join("");
 }
 function renderLunch(l){
-  if(!l||!l.items.length){$("lunchBody").innerHTML=`<div class="item">Bugün için öğle menüsü bulunamadı</div>`;return}
+  if(!l){$("lunchBody").innerHTML=`<div class="item">Menü alınamadı</div>`;return}
+  if(!l.items.length){$("lunchBody").innerHTML=`<div class="item">Bugün için öğle menüsü bulunamadı</div>`;return}
   $("lunchBody").innerHTML=`<ul>${l.items.map(i=>`<li><span><span class="cat">${esc(i.category)}</span>${esc(i.title)}</span><span class="kcal">${i.kcal??""} kcal</span></li>`).join("")}</ul>
    <div class="total">Toplam ≈ ${l.kcal} kcal</div>`;
 }
@@ -229,24 +236,34 @@ function renderNews(list){
     ||`<div class="item">Haberler alınamadı</div>`;
 }
 function renderEvents(list){
-  $("eventsBody").innerHTML=(list||[]).slice(0,5).map(e=>{
+  if(!list){$("eventsBody").innerHTML=`<div class="item">Etkinlikler alınamadı</div>`;return}
+  $("eventsBody").innerHTML=list.slice(0,5).map(e=>{
     const [,m,d]=e.date.split("-");
     return `<div class="item"><span class="d">${+d} ${AYLAR[+m-1].slice(0,3)}</span>${esc(e.title)}</div>`;
   }).join("")||`<div class="item">Yaklaşan etkinlik yok</div>`;
 }
 
+let refreshTimer;
 async function refresh(){
+  let problem=true;   // sorun varsa 10 sn'de bir, yoksa 60 sn'de bir dene
   try{
     const r=await fetch("/api/data",{cache:"no-store"});
-    const {sections:s}=await r.json();
+    const j=await r.json(), s=j.sections;
     renderWeather(s.weather.data); renderMarkets(s); renderLunch(s.lunch.data);
     renderNews(s.news.data); renderEvents(s.events.data);
     const stale=Object.entries(s).filter(([,v])=>v.stale).map(([k])=>k);
-    $("staleNote").textContent=stale.length?"⚠ güncellenemeyen: "+stale.join(", "):"";
-  }catch(e){ $("staleNote").textContent="⚠ sunucuya ulaşılamıyor"; }
+    $("offline").style.display=j.online?"none":"flex";
+    $("staleNote").textContent=(j.online&&stale.length)?"⚠ güncellenemeyen: "+stale.join(", "):"";
+    problem=!j.online||stale.length>0;
+  }catch(e){
+    $("offline").style.display="none";
+    $("staleNote").textContent="⚠ sunucuya ulaşılamıyor";
+  }
+  clearTimeout(refreshTimer);
+  refreshTimer=setTimeout(refresh,problem?10000:60000);
 }
 tick(); setInterval(tick,1000);
-refresh(); setInterval(refresh,60000);
+refresh();
 /* gece yarısı sonrası yemek/takvim tazelensin diye sayfayı günde bir kez yenile */
 setInterval(()=>{const n=new Date(); if(n.getHours()===3&&n.getMinutes()===0&&n.getSeconds()<2) location.reload();},1000);
 </script>

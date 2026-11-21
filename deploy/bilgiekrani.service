@@ -1,0 +1,19 @@
+[Unit]
+Description=Bilgi Ekrani (Flask sunucusu)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__DIR__
+Environment=PORT=8080
+# Yalnızca bu cihazdan erişilsin. Ağdaki telefondan da görmek istersen 0.0.0.0 yap.
+Environment=BE_HOST=127.0.0.1
+ExecStart=__DIR__/.venv/bin/python -m bilgiekrani.app
+# İnternet yokken de açılır; çökerse 5 sn sonra yeniden başlar.
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
