@@ -5,13 +5,13 @@ Raspberry Pi'ye bağlı 1920x1080 TV için Python (Flask) ile çalışan bilgi p
 ![Ekran görüntüsü](docs/ekran.png)
 
 ## Gösterilenler
-- Saat ve tarih
+- Hacettepe Üniversitesi arması, bölüm adı, saat ve tarih
 - Hava durumu (Open-Meteo, varsayılan: Ankara)
-- USD/TL, EUR/TL, Bitcoin/TL, Ethereum/TL, BIST 100, Nasdaq (endekslerde ve kriptoda günlük % değişim; ▲ artı, ▼ eksi)
-- İki aylık takvim (mevcut ve sonraki ay)
+- USD/TL, EUR/TL, Bitcoin/TL, Ethereum/TL, BIST 100, Nasdaq (hepsinde günlük % değişim; ▲ artı, ▼ eksi)
+- İki aylık takvim (mevcut ve sonraki ay, yan yana kare)
 - Günlük öğle yemeği listesi (beslenme.hacettepe.edu.tr)
-- Hacettepe haberleri (gazete.hacettepe.edu.tr)
-- Yaklaşan etkinlikler (etkinlikler.hacettepe.edu.tr)
+- Hacettepe haberleri (gazete.hacettepe.edu.tr) ve haberler sayfasına karekod
+- Yaklaşan etkinlikler (etkinlikler.hacettepe.edu.tr) ve etkinlikler sayfasına karekod
 
 ## Çalıştırma
 ```bash
@@ -39,5 +39,7 @@ Playwright'ın tarayıcısı yoksa `CHROMIUM_PATH=/yol/chromium` verilebilir.
 
 ## Notlar
 - Veri kaynakları önbelleğe alınır; bir kaynak erişilemezse son başarılı veri gösterilir ve köşede uyarı çıkar.
-- Döviz kaynağı (open.er-api.com) günlük değişim vermediği için USD/EUR'da yüzde gösterilmez.
+- USD/EUR günlük değişimi Yahoo Finance'ten gelir; erişilemezse open.er-api.com yedeği kullanılır (yüzde gösterilmez).
+- Karekodları yeniden üretmek için: `python scripts/make_qr.py` (adresler o dosyada).
+- Logo, www.hacettepe.edu.tr'deki resmî arma SVG'sinden kırpılmıştır (`bilgiekrani/static/logo.svg`).
 - Siteler yapısını değiştirirse `bilgiekrani/providers.py` içindeki `parse_*` fonksiyonları ve `tests/fixtures` güncellenmelidir.

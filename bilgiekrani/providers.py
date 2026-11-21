@@ -88,8 +88,23 @@ def parse_fx(data: dict) -> list[dict]:
     ]
 
 
+def _yahoo_chart(symbol: str) -> dict:
+    r = _get(
+        f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}",
+        params={"range": "1d", "interval": "1d"},
+    )
+    return r.json()
+
+
 def fetch_fx() -> list[dict]:
-    return parse_fx(_get("https://open.er-api.com/v6/latest/USD").json())
+    """Önce Yahoo (günlük % değişimli); olmazsa değişimsiz yedek kaynak."""
+    try:
+        return [
+            parse_index(_yahoo_chart(sym), key, label)
+            for sym, key, label in (("TRY=X", "USDTRY", "USD/TL"), ("EURTRY=X", "EURTRY", "EUR/TL"))
+        ]
+    except Exception:
+        return parse_fx(_get("https://open.er-api.com/v6/latest/USD").json())
 
 
 def parse_crypto(data: dict) -> list[dict]:
@@ -117,14 +132,10 @@ def parse_index(data: dict, key: str, label: str) -> dict:
 
 
 def fetch_indices() -> list[dict]:
-    out = []
-    for symbol, key, label in (("XU100.IS", "BIST100", "BIST 100"), ("^IXIC", "NASDAQ", "Nasdaq")):
-        r = _get(
-            f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}",
-            params={"range": "1d", "interval": "1d"},
-        )
-        out.append(parse_index(r.json(), key, label))
-    return out
+    return [
+        parse_index(_yahoo_chart(sym), key, label)
+        for sym, key, label in (("XU100.IS", "BIST100", "BIST 100"), ("^IXIC", "NASDAQ", "Nasdaq"))
+    ]
 
 
 # ------------------------------------------------------------------ Yemek
